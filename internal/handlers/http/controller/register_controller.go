@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rzfd/gorm-ners/internal/handlers/http/middleware"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/model"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/security"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ func Regis(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err == nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "User already exists"})
 		}
-		hash, err := middleware.HashPassword(u.Password)
+		hash, err := security.HashPassword(u.Password)
 		if err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Error When Hashing"})
 		}
@@ -50,10 +50,10 @@ func Login(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err != nil {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
 		}
-		if !middleware.CheckPasswordHash(u.Password, existingUser.Password) {
+		if !security.CheckPasswordHash(u.Password, existingUser.Password) {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
 		}
-		token, err := middleware.GetToken(u.ID, jwtSecret)
+		token, err := security.GetToken(u.ID, jwtSecret)
 		if err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not generate token"})
 		}

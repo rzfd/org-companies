@@ -1,4 +1,4 @@
-package middleware
+package security
 
 import (
 	"errors"
