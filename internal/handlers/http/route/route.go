@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterRoutes(e *echo.Echo, db *gorm.DB) {
-	RegisterUserRoutes(e, db)
-	RegisterCompanyRoutes(e, db)
+func RegisterRoutes(group *echo.Group, db *gorm.DB) {
+	RegisterUserRoutes(group, db)
+	RegisterCompanyRoutes(group, db)
 }

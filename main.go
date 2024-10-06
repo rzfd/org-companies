@@ -16,10 +16,13 @@ func main() {
 	dbConn := utill.ConnectDB()
 	e := echo.New()
 	jwtSecret := os.Getenv("JWT_SECRET")
+
 	e.POST("/register", controller.Regis(dbConn, jwtSecret))
 	e.POST("/login", controller.Login(dbConn, jwtSecret))
+
 	protect := e.Group("")
 	protect.Use(middleware.JWTMiddleware(jwtSecret))
-	route.RegisterRoutes(e, dbConn)
+
+	route.RegisterRoutes(protect, dbConn)
 	e.Logger.Fatal(e.Start(":8080"))
 }

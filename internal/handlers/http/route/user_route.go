@@ -8,11 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterUserRoutes(e *echo.Echo, db *gorm.DB) {
+func RegisterUserRoutes(group *echo.Group, db *gorm.DB) {
 	uc := &controller.UserController{DB: db}
-	e.POST("/users", uc.CreateUser)
-	e.GET("/users/:id", uc.GetUser)
-	e.PUT("/users/:id", uc.UpdateUser)
-	e.DELETE("/users/:id", uc.DeleteUser)
-	e.GET("/users", uc.GetAllUsers)
+	group.POST("/users", uc.CreateUser)
+	group.GET("/users/:id", uc.GetUser)
+	group.PUT("/users/:id", uc.UpdateUser)
+	group.DELETE("/users/:id", uc.DeleteUser)
+	group.GET("/users", uc.GetAllUsers)
 }

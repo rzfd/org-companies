@@ -8,11 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterCompanyRoutes(e *echo.Echo, db *gorm.DB) {
+func RegisterCompanyRoutes(group *echo.Group, db *gorm.DB) {
 	cc := &controller.CompanyController{DB: db}
-	e.POST("/companies", cc.CreateCompany)
-	e.GET("/companies/:id", cc.GetCompany)
-	e.PUT("/companies/:id", cc.UpdateCompany)
-	e.DELETE("/companies/:id", cc.DeleteCompany)
-	e.GET("/companies", cc.GetAllCompanies)
+	group.POST("/companies", cc.CreateCompany)
+	group.GET("/companies/:id", cc.GetCompany)
+	group.PUT("/companies/:id", cc.UpdateCompany)
+	group.DELETE("/companies/:id", cc.DeleteCompany)
+	group.GET("/companies", cc.GetAllCompanies)
 }
