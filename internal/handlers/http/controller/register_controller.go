@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/middleware"
@@ -16,6 +16,18 @@ func Regis(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 		if err := e.Bind(u); err != nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Input"})
 		}
+		var existingUser model.Regis
+		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err == nil {
+			return e.JSON(http.StatusBadRequest, map[string]string{"error": "User already exists"})
+		}
+		hash, err := middleware.HashPassword(u.Password)
+		if err != nil {
+			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Error When Hashing"})
+		}
+
+		u.Password = strings.ToLower(strings.ReplaceAll(u.Uname, " ", ""))
+		u.Password = strings.ReplaceAll(u.Password, " ", "")
+		u.Password = hash
 		if err := db.Create(u).Error; err != nil {
 			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Registration failed"})
 		}
@@ -34,9 +46,15 @@ func Login(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 		if err := e.Bind(u); err != nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Input"})
 		}
+		var existingUser model.Regis
+		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err != nil {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
+		}
+		if !middleware.CheckPasswordHash(u.Password, existingUser.Password) {
+			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
+		}
 		token, err := middleware.GetToken(u.ID, jwtSecret)
 		if err != nil {
-			fmt.Printf("JWT error: %+v\n", err)
 			return e.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not generate token"})
 		}
 		return e.JSON(http.StatusOK, map[string]interface{}{
