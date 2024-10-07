@@ -1,4 +1,4 @@
-package model
+package entities
 
 type Company struct {
 	ID   int    `json:"id"`

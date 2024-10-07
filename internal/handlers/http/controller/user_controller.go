@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/rzfd/gorm-ners/internal/handlers/http/model"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/entities"
 	"gorm.io/gorm"
 
 	"github.com/labstack/echo/v4"
@@ -14,7 +14,7 @@ type UserController struct {
 }
 
 func (uc *UserController) CreateUser(c echo.Context) error {
-	user := new(model.User)
+	user := new(entities.User)
 	if err := c.Bind(user); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request"})
 	}
@@ -29,7 +29,7 @@ func (uc *UserController) CreateUser(c echo.Context) error {
 
 func (uc *UserController) GetUser(c echo.Context) error {
 	id := c.Param("id")
-	var user model.User
+	var user entities.User
 	if err := uc.DB.Preload("Company").First(&user, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "User not found"})
 	}
@@ -38,7 +38,7 @@ func (uc *UserController) GetUser(c echo.Context) error {
 
 func (uc *UserController) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
-	var user model.User
+	var user entities.User
 	if err := uc.DB.First(&user, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "User not found"})
 	}
@@ -53,14 +53,14 @@ func (uc *UserController) UpdateUser(c echo.Context) error {
 
 func (uc *UserController) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
-	if err := uc.DB.Delete(&model.User{}, id).Error; err != nil {
+	if err := uc.DB.Delete(&entities.User{}, id).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to delete user"})
 	}
 	return c.NoContent(http.StatusNoContent)
 }
 
 func (uc *UserController) GetAllUsers(c echo.Context) error {
-	var users []model.User
+	var users []entities.User
 	if err := uc.DB.Preload("Company").Find(&users).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}

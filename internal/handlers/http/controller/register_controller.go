@@ -5,18 +5,18 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rzfd/gorm-ners/internal/handlers/http/model"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/entities"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/security"
 	"gorm.io/gorm"
 )
 
 func Regis(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		u := new(model.Regis)
+		u := new(entities.Regis)
 		if err := e.Bind(u); err != nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Input"})
 		}
-		var existingUser model.Regis
+		var existingUser entities.Regis
 		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err == nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "User already exists"})
 		}
@@ -42,11 +42,11 @@ func Regis(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 
 func Login(db *gorm.DB, jwtSecret string) echo.HandlerFunc {
 	return func(e echo.Context) error {
-		u := new(model.Regis)
+		u := new(entities.Regis)
 		if err := e.Bind(u); err != nil {
 			return e.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid Input"})
 		}
-		var existingUser model.Regis
+		var existingUser entities.Regis
 		if err := db.Where("uname = ?", u.Uname).First(&existingUser).Error; err != nil {
 			return e.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid username or password"})
 		}

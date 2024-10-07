@@ -1,4 +1,4 @@
-package model
+package entities
 
 type Regis struct {
 	ID       int    `gorm:"type:char(36);primary_key" json:"user_id"`

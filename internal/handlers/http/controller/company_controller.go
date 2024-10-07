@@ -3,10 +3,10 @@ package controller
 import (
 	"net/http"
 
-	"github.com/rzfd/gorm-ners/internal/handlers/http/model"
 	"gorm.io/gorm"
 
 	"github.com/labstack/echo/v4"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/entities"
 )
 
 type CompanyController struct {
@@ -14,7 +14,7 @@ type CompanyController struct {
 }
 
 func (cc *CompanyController) CreateCompany(c echo.Context) error {
-	company := new(model.Company)
+	company := new(entities.Company)
 	if err := c.Bind(company); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request"})
 	}
@@ -29,7 +29,7 @@ func (cc *CompanyController) CreateCompany(c echo.Context) error {
 
 func (cc *CompanyController) GetCompany(c echo.Context) error {
 	id := c.Param("id")
-	var company model.Company
+	var company entities.Company
 	if err := cc.DB.First(&company, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "Company not found"})
 	}
@@ -38,7 +38,7 @@ func (cc *CompanyController) GetCompany(c echo.Context) error {
 
 func (cc *CompanyController) UpdateCompany(c echo.Context) error {
 	id := c.Param("id")
-	var company model.Company
+	var company entities.Company
 	if err := cc.DB.First(&company, id).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "Company not found"})
 	}
@@ -53,14 +53,14 @@ func (cc *CompanyController) UpdateCompany(c echo.Context) error {
 
 func (cc *CompanyController) DeleteCompany(c echo.Context) error {
 	id := c.Param("id")
-	if err := cc.DB.Delete(&model.Company{}, id).Error; err != nil {
+	if err := cc.DB.Delete(&entities.Company{}, id).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to delete company"})
 	}
 	return c.NoContent(http.StatusNoContent)
 }
 
 func (cc *CompanyController) GetAllCompanies(c echo.Context) error {
-	var companies []model.Company
+	var companies []entities.Company
 	if err := cc.DB.Find(&companies).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to retrieve companies"})
 	}
