@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/rzfd/gorm-ners/internal/config"
-	"github.com/rzfd/gorm-ners/internal/handlers/http/model"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/entities"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -42,7 +42,7 @@ func ConnectDB() *gorm.DB {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	if err := db.AutoMigrate(&model.User{}, &model.Company{}, &model.Regis{}); err != nil {
+	if err := db.AutoMigrate(&entities.User{}, &entities.Company{}, &entities.Regis{}); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 	return db

@@ -7,16 +7,22 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rzfd/gorm-ners/internal/config"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/controller"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/repositories"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/route"
 	"github.com/rzfd/gorm-ners/internal/handlers/http/security"
+	"github.com/rzfd/gorm-ners/internal/handlers/http/services"
 	"github.com/rzfd/gorm-ners/internal/utill"
 )
 
 func main() {
 	config.LoadEnv()
 	dbConn := utill.ConnectDB()
+
+	userRepo := repositories.NewUserRepository(dbConn)
+	authService := services.NewAuthService(userRepo)
+
 	e := echo.New()
-	jwtSecret := os.Getenv("JWT_SECRET")
+	jwtSecret := os.Getenv("JWT_TOKEN")
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"*"},
@@ -26,8 +32,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	e.POST("/register", controller.Regis(dbConn, jwtSecret))
-	e.POST("/login", controller.Login(dbConn, jwtSecret))
+	e.POST("/register", controller.Register(authService))
+	e.POST("/login", controller.Login(authService))
 
 	protect := e.Group("")
 	protect.Use(security.JWTMiddleware(jwtSecret))
